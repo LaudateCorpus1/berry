@@ -428,7 +428,7 @@ describe(`Shell`, () => {
 
       it(`should expose the shell pid via $$`, async () => {
         await expect(bufferResult(
-          `echo $$`
+          `echo $$`,
         )).resolves.toMatchObject({
           // The shell runs in the same process as the tests
           stdout: `${process.pid}\n`,
@@ -437,7 +437,7 @@ describe(`Shell`, () => {
 
       it(`should expose the shell ppid via $PPID`, async () => {
         await expect(bufferResult(
-          `echo $PPID`
+          `echo $PPID`,
         )).resolves.toMatchObject({
           // The shell runs in the same process as the tests
           stdout: `${process.ppid}\n`,
@@ -480,7 +480,7 @@ describe(`Shell`, () => {
       describe(`Assignment prefix`, () => {
         it(`should set environment variables`, async () => {
           await expect(bufferResult(
-            `PORT=1234 node -e 'process.stdout.write(process.env.PORT)'`
+            `PORT=1234 node -e 'process.stdout.write(process.env.PORT)'`,
           )).resolves.toMatchObject({
             stdout: `1234`,
           });
@@ -488,7 +488,7 @@ describe(`Shell`, () => {
 
         it(`should support setting multiple environment variables`, async () => {
           await expect(bufferResult(
-            `HOST="localhost" PORT=1234 node -e 'process.stdout.write(process.env.HOST + ":" + process.env.PORT)'`
+            `HOST="localhost" PORT=1234 node -e 'process.stdout.write(process.env.HOST + ":" + process.env.PORT)'`,
           )).resolves.toMatchObject({
             stdout: `localhost:1234`,
           });
@@ -497,7 +497,7 @@ describe(`Shell`, () => {
         it(`should support setting environment variables with shell interpolation`, async () => {
           await expect(bufferResult(
             `HOST="local"$(echo $0) PORT=1234 node -e 'process.stdout.write(process.env.HOST + ":" + process.env.PORT)'`,
-            [`host`]
+            [`host`],
           )).resolves.toMatchObject({
             stdout: `localhost:1234`,
           });
@@ -505,7 +505,7 @@ describe(`Shell`, () => {
 
         it(`should clear an env variable if value is omitted`, async () => {
           await expect(bufferResult(
-            `HOST="localhost" PORT=1234 HOST= node -e 'process.stdout.write(process.env.HOST + ":" + process.env.PORT)'`
+            `HOST="localhost" PORT=1234 HOST= node -e 'process.stdout.write(process.env.HOST + ":" + process.env.PORT)'`,
           )).resolves.toMatchObject({
             stdout: `:1234`,
           });
@@ -571,7 +571,7 @@ describe(`Shell`, () => {
         await expect(bufferResult(
           `echo $FOOBAR`,
           [],
-          {env: {FOOBAR: `hello world`}}
+          {env: {FOOBAR: `hello world`}},
         )).resolves.toMatchObject({
           stdout: `hello world\n`,
         });
@@ -992,7 +992,7 @@ describe(`Shell`, () => {
           await expect(bufferResult(
             `echo "hello world" >& 42 && echo OK || echo KO`,
             [],
-            {cwd: tmpDir}
+            {cwd: tmpDir},
           )).resolves.toMatchObject({
             exitCode: 0,
             stdout: `KO\n`,
@@ -1146,7 +1146,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo *`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `a.txt b.txt c.txt\n`,
             });
@@ -1154,7 +1154,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo *.txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `a.txt b.txt c.txt\n`,
             });
@@ -1172,7 +1172,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo **`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `a.txt foo foo/b.txt foo/bar foo/bar/c.txt\n`,
             });
@@ -1180,7 +1180,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo **/*.txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `a.txt foo/b.txt foo/bar/c.txt\n`,
             });
@@ -1197,7 +1197,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo a?.txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `ax.txt\n`,
             });
@@ -1205,7 +1205,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo a??a.txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `axxa.txt\n`,
             });
@@ -1213,7 +1213,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo a.txt?`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `a.txtx\n`,
             });
@@ -1233,7 +1233,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo a[23].txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `a2.txt a3.txt\n`,
             });
@@ -1241,7 +1241,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo foo.[jt]s`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `foo.js foo.ts\n`,
             });
@@ -1249,7 +1249,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo foo.[!jt]s`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `foo.cs\n`,
             });
@@ -1257,7 +1257,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo foo.[^jt]s`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `foo.cs\n`,
             });
@@ -1312,7 +1312,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo +([[:alnum:]]).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `123.txt BAR.txt abc.txt foo.txt foo123.txt\n`,
             });
@@ -1320,7 +1320,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo +([[:alpha:]]).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `BAR.txt abc.txt foo.txt\n`,
             });
@@ -1328,7 +1328,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo +([[:ascii:]]).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `&434)hello.txt 123.txt BAR.txt abc.txt foo.txt foo123.txt hello_world123.txt\n`,
             });
@@ -1336,7 +1336,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo +([[:digit:]]).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `123.txt\n`,
             });
@@ -1344,7 +1344,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo +([[:lower:]]).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `abc.txt foo.txt\n`,
             });
@@ -1352,7 +1352,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo +([[:upper:]]).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `BAR.txt\n`,
             });
@@ -1360,7 +1360,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo +([[:word:]]).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `123.txt BAR.txt abc.txt foo.txt foo123.txt hello_world123.txt\n`,
             });
@@ -1368,7 +1368,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo +([[:xdigit:]]).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `123.txt abc.txt\n`,
             });
@@ -1385,7 +1385,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo f@(o).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `fo.txt\n`,
             });
@@ -1393,7 +1393,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo f*(o).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `f.txt fo.txt foo.txt fooo.txt\n`,
             });
@@ -1401,7 +1401,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo f+(o).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `fo.txt foo.txt fooo.txt\n`,
             });
@@ -1409,7 +1409,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo f?(o).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `f.txt fo.txt\n`,
             });
@@ -1417,7 +1417,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo f!(o).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `f.txt\n`,
             });
@@ -1446,7 +1446,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo {a,b}.txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `a.txt b.txt\n`,
             });
@@ -1454,7 +1454,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo {cb,ft}{ax,st}{bc,wy}.txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `cbaxbc.txt cbstbc.txt ftaxwy.txt\n`,
             });
@@ -1462,7 +1462,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo a{bc,{cd,{de,ef}}}.txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `abc.txt acd.txt ade.txt aef.txt\n`,
             });
@@ -1480,7 +1480,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo +([a-d]).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `abcd.txt\n`,
             });
@@ -1488,7 +1488,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo +([1-5]).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `12345.txt\n`,
             });
@@ -1496,7 +1496,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo +([a-d])+([x-z])+([0-9]).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `abcdxyz0123456789.txt\n`,
             });
@@ -1519,7 +1519,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo (ab|xy)(12|89).txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `ab12.txt xy89.txt\n`,
             });
@@ -1527,7 +1527,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo foo(x!(a)|y!(b))1.txt`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               stdout: `foox1.txt fooxb1.txt fooy1.txt fooya1.txt\n`,
             });
@@ -1543,7 +1543,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo * && echo OK || echo KO`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               exitCode: 0,
               stdout: `KO\n`,
@@ -1557,7 +1557,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo {foo,bar}`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               exitCode: 1,
               stdout: ``,
@@ -1571,7 +1571,7 @@ describe(`Shell`, () => {
             await expect(bufferResult(
               `echo *`,
               [],
-              {cwd: tmpDir}
+              {cwd: tmpDir},
             )).resolves.toMatchObject({
               exitCode: 1,
               stdout: ``,
@@ -1593,7 +1593,7 @@ describe(`Shell`, () => {
           await expect(bufferResult(
             `echo *`,
             [],
-            {cwd: tmpDir}
+            {cwd: tmpDir},
           )).resolves.toMatchObject({
             stdout: `a.txt b.txt c.txt d e\n`,
           });
@@ -1614,7 +1614,7 @@ describe(`Shell`, () => {
           await expect(bufferResult(
             `echo $DIRNAME/*`,
             [],
-            {cwd: tmpDir, env: {DIRNAME: `subdir`}}
+            {cwd: tmpDir, env: {DIRNAME: `subdir`}},
           )).resolves.toMatchObject({
             stdout: `subdir/a.txt subdir/b.txt subdir/c.txt\n`,
           });
@@ -1622,7 +1622,7 @@ describe(`Shell`, () => {
           await expect(bufferResult(
             `echo \${DIRNAME}/*`,
             [],
-            {cwd: tmpDir, env: {DIRNAME: `subdir`}}
+            {cwd: tmpDir, env: {DIRNAME: `subdir`}},
           )).resolves.toMatchObject({
             stdout: `subdir/a.txt subdir/b.txt subdir/c.txt\n`,
           });
@@ -1641,7 +1641,7 @@ describe(`Shell`, () => {
           await expect(bufferResult(
             `echo $(echo subdir)/*`,
             [],
-            {cwd: tmpDir, env: {DIRNAME: `subdir`}}
+            {cwd: tmpDir, env: {DIRNAME: `subdir`}},
           )).resolves.toMatchObject({
             stdout: `subdir/a.txt subdir/b.txt subdir/c.txt\n`,
           });
@@ -1660,7 +1660,7 @@ describe(`Shell`, () => {
           await expect(bufferResult(
             `echo $(( 1000 + 234 ))/*`,
             [],
-            {cwd: tmpDir}
+            {cwd: tmpDir},
           )).resolves.toMatchObject({
             stdout: `1234/a.txt 1234/b.txt 1234/c.txt\n`,
           });
