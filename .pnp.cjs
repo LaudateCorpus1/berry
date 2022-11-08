@@ -21519,7 +21519,7 @@ const RAW_RUNTIME_STATE =
           ["@types/babel__core", "npm:7.1.3"],\
           ["@types/webpack", null],\
           ["find-cache-dir", "npm:3.3.1"],\
-          ["loader-utils", "npm:1.4.0"],\
+          ["loader-utils", "npm:1.4.1"],\
           ["make-dir", "npm:3.1.0"],\
           ["schema-utils", "npm:2.7.0"],\
           ["webpack", "virtual:7243a2f0702f8452df413d5239831a2fe8f28104187d0cf79c049c7b9ba6c33bb036028e40e6b6352789084ab1637ba736da1e5086fe18a644f8aa27e1ca758a#npm:5.38.1"]\
@@ -27335,7 +27335,7 @@ const RAW_RUNTIME_STATE =
           ["@types/webpack", null],\
           ["core-js", "npm:2.6.11"],\
           ["favicons", "npm:5.3.0"],\
-          ["loader-utils", "npm:1.4.0"],\
+          ["loader-utils", "npm:1.4.1"],\
           ["lodash", "npm:4.17.21"],\
           ["webpack", null]\
         ],\
@@ -28663,7 +28663,7 @@ const RAW_RUNTIME_STATE =
           ["gatsby-core-utils", "npm:2.14.0"],\
           ["gray-matter", "npm:4.0.3"],\
           ["json5", "npm:2.2.1"],\
-          ["loader-utils", "npm:1.4.0"],\
+          ["loader-utils", "npm:1.4.1"],\
           ["lodash", "npm:4.17.21"],\
           ["mdast-util-to-string", "npm:1.1.0"],\
           ["mdast-util-toc", "npm:3.1.0"],\
@@ -33638,10 +33638,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["loader-utils", [\
-      ["npm:1.4.0", {\
-        "packageLocation": "./.yarn/cache/loader-utils-npm-1.4.0-a56254a277-ba50c7c771.zip/node_modules/loader-utils/",\
+      ["npm:1.4.1", {\
+        "packageLocation": "./.yarn/cache/loader-utils-npm-1.4.1-91a9c6b986-9490895444.zip/node_modules/loader-utils/",\
         "packageDependencies": [\
-          ["loader-utils", "npm:1.4.0"],\
+          ["loader-utils", "npm:1.4.1"],\
           ["big.js", "npm:5.2.2"],\
           ["emojis-list", "npm:3.0.0"],\
           ["json5", "npm:1.0.1"]\
@@ -44980,7 +44980,7 @@ const RAW_RUNTIME_STATE =
           ["eslint-scope", "npm:4.0.3"],\
           ["json-parse-better-errors", "npm:1.0.2"],\
           ["loader-runner", "npm:2.4.0"],\
-          ["loader-utils", "npm:1.4.0"],\
+          ["loader-utils", "npm:1.4.1"],\
           ["memory-fs", "npm:0.4.1"],\
           ["micromatch", "npm:3.1.10"],\
           ["mkdirp", "npm:0.5.5"],\
@@ -45727,7 +45727,7 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./.yarn/cache/yaml-loader-npm-0.6.0-348c22dc2a-049d74a199.zip/node_modules/yaml-loader/",\
         "packageDependencies": [\
           ["yaml-loader", "npm:0.6.0"],\
-          ["loader-utils", "npm:1.4.0"],\
+          ["loader-utils", "npm:1.4.1"],\
           ["yaml", "npm:1.10.2"]\
         ],\
         "linkType": "HARD"\
