@@ -486,6 +486,13 @@ export class Project {
   }
 
   tryWorkspaceByDescriptor(descriptor: Descriptor) {
+    if (descriptor.range.startsWith(WorkspaceResolver.protocol)) {
+      const specifier = descriptor.range.slice(WorkspaceResolver.protocol.length) as PortablePath;
+      if (specifier !== `^` && specifier !== `~` && specifier !== `*` && !semverUtils.validRange(specifier)) {
+        return this.tryWorkspaceByCwd(specifier);
+      }
+    }
+
     const workspace = this.tryWorkspaceByIdent(descriptor);
     if (workspace === null)
       return null;
@@ -644,7 +651,7 @@ export class Project {
   }
 
   async loadUserConfig() {
-    const configPath = ppath.join(this.cwd, `yarn.config.js` as Filename);
+    const configPath = ppath.join(this.cwd, `yarn.config.js`);
     if (!await xfs.existsPromise(configPath))
       return null;
 
@@ -1328,33 +1335,55 @@ export class Project {
 
     let isInstallStatePersisted = false;
 
+    const isLocatorBuildable = (locator: Locator) => {
+      const hashesToCheck = new Set([locator.locatorHash]);
+
+      for (const locatorHash of hashesToCheck) {
+        const pkg = this.storedPackages.get(locatorHash);
+        if (!pkg)
+          throw new Error(`Assertion failed: The package should have been registered`);
+
+        for (const dependency of pkg.dependencies.values()) {
+          const resolution = this.storedResolutions.get(dependency.descriptorHash);
+          if (!resolution)
+            throw new Error(`Assertion failed: The resolution (${structUtils.prettyDescriptor(this.configuration, dependency)}) should have been registered`);
+
+          if (resolution !== locator.locatorHash && buildablePackages.has(resolution))
+            return false;
+
+          // Virtual workspaces don't have build scripts but the original might so we need to check it.
+          const dependencyPkg = this.storedPackages.get(resolution);
+          if (!dependencyPkg)
+            throw new Error(`Assertion failed: The package should have been registered`);
+
+          const workspace = this.tryWorkspaceByLocator(dependencyPkg);
+          if (workspace) {
+            if (workspace.anchoredLocator.locatorHash !== locator.locatorHash && buildablePackages.has(workspace.anchoredLocator.locatorHash))
+              return false;
+
+            hashesToCheck.add(workspace.anchoredLocator.locatorHash);
+          }
+
+          hashesToCheck.add(resolution);
+        }
+      }
+
+      return true;
+    };
+
     while (buildablePackages.size > 0) {
       const savedSize = buildablePackages.size;
-      const buildPromises = [];
+      const buildPromises: Array<Promise<unknown>> = [];
 
       for (const locatorHash of buildablePackages) {
         const pkg = this.storedPackages.get(locatorHash);
         if (!pkg)
           throw new Error(`Assertion failed: The package should have been registered`);
 
-        let isBuildable = true;
-        for (const dependency of pkg.dependencies.values()) {
-          const resolution = this.storedResolutions.get(dependency.descriptorHash);
-          if (!resolution)
-            throw new Error(`Assertion failed: The resolution (${structUtils.prettyDescriptor(this.configuration, dependency)}) should have been registered`);
-
-          if (buildablePackages.has(resolution)) {
-            isBuildable = false;
-            break;
-          }
-        }
-
         // Wait until all dependencies of the current package have been built
         // before trying to build it (since it might need them to build itself)
-        if (!isBuildable)
+        if (!isLocatorBuildable(pkg))
           continue;
-
-        buildablePackages.delete(locatorHash);
 
         const buildInfo = packageBuildDirectives.get(pkg.locatorHash);
         if (!buildInfo)
@@ -1365,6 +1394,7 @@ export class Project {
         // No need to rebuild the package if its hash didn't change
         if (this.storedBuildState.get(pkg.locatorHash) === buildHash) {
           nextBState.set(pkg.locatorHash, buildHash);
+          buildablePackages.delete(locatorHash);
           continue;
         }
 
@@ -1382,76 +1412,84 @@ export class Project {
         else
           report.reportInfo(MessageName.MUST_BUILD, `${structUtils.prettyLocator(this.configuration, pkg)} must be built because it never has been before or the last one failed`);
 
-        for (const location of buildInfo.buildLocations) {
+        const pkgBuilds = buildInfo.buildLocations.map(async location => {
           if (!ppath.isAbsolute(location))
             throw new Error(`Assertion failed: Expected the build location to be absolute (not ${location})`);
 
-          buildPromises.push((async () => {
-            for (const [buildType, scriptName] of buildInfo.directives) {
-              let header = `# This file contains the result of Yarn building a package (${structUtils.stringifyLocator(pkg)})\n`;
-              switch (buildType) {
-                case BuildType.SCRIPT: {
-                  header += `# Script name: ${scriptName}\n`;
-                } break;
-                case BuildType.SHELLCODE: {
-                  header += `# Script code: ${scriptName}\n`;
-                } break;
-              }
+          for (const [buildType, scriptName] of buildInfo.directives) {
+            let header = `# This file contains the result of Yarn building a package (${structUtils.stringifyLocator(pkg)})\n`;
+            switch (buildType) {
+              case BuildType.SCRIPT: {
+                header += `# Script name: ${scriptName}\n`;
+              } break;
+              case BuildType.SHELLCODE: {
+                header += `# Script code: ${scriptName}\n`;
+              } break;
+            }
 
-              const stdin = null;
+            const stdin = null;
 
-              const wasBuildSuccessful = await xfs.mktempPromise(async logDir => {
-                const logFile = ppath.join(logDir, `build.log` as PortablePath);
+            const wasBuildSuccessful = await xfs.mktempPromise(async logDir => {
+              const logFile = ppath.join(logDir, `build.log`);
 
-                const {stdout, stderr} = this.configuration.getSubprocessStreams(logFile, {
-                  header,
-                  prefix: structUtils.prettyLocator(this.configuration, pkg),
-                  report,
-                });
-
-                let exitCode;
-                try {
-                  switch (buildType) {
-                    case BuildType.SCRIPT: {
-                      exitCode = await scriptUtils.executePackageScript(pkg, scriptName, [], {cwd: location, project: this, stdin, stdout, stderr});
-                    } break;
-                    case BuildType.SHELLCODE: {
-                      exitCode = await scriptUtils.executePackageShellcode(pkg, scriptName, [], {cwd: location, project: this, stdin, stdout, stderr});
-                    } break;
-                  }
-                } catch (error) {
-                  stderr.write(error.stack);
-                  exitCode = 1;
-                }
-
-                stdout.end();
-                stderr.end();
-
-                if (exitCode === 0) {
-                  nextBState.set(pkg.locatorHash, buildHash);
-                  return true;
-                }
-
-                xfs.detachTemp(logDir);
-
-                const buildMessage = `${structUtils.prettyLocator(this.configuration, pkg)} couldn't be built successfully (exit code ${formatUtils.pretty(this.configuration, exitCode, formatUtils.Type.NUMBER)}, logs can be found here: ${formatUtils.pretty(this.configuration, logFile, formatUtils.Type.PATH)})`;
-
-                if (this.optionalBuilds.has(pkg.locatorHash)) {
-                  report.reportInfo(MessageName.BUILD_FAILED, buildMessage);
-                  nextBState.set(pkg.locatorHash, buildHash);
-                  return true;
-                } else {
-                  report.reportError(MessageName.BUILD_FAILED, buildMessage);
-                  return false;
-                }
+              const {stdout, stderr} = this.configuration.getSubprocessStreams(logFile, {
+                header,
+                prefix: structUtils.prettyLocator(this.configuration, pkg),
+                report,
               });
 
-              if (!wasBuildSuccessful) {
-                return;
+              let exitCode;
+              try {
+                switch (buildType) {
+                  case BuildType.SCRIPT: {
+                    exitCode = await scriptUtils.executePackageScript(pkg, scriptName, [], {cwd: location, project: this, stdin, stdout, stderr});
+                  } break;
+                  case BuildType.SHELLCODE: {
+                    exitCode = await scriptUtils.executePackageShellcode(pkg, scriptName, [], {cwd: location, project: this, stdin, stdout, stderr});
+                  } break;
+                }
+              } catch (error) {
+                stderr.write(error.stack);
+                exitCode = 1;
               }
+
+              stdout.end();
+              stderr.end();
+
+              if (exitCode === 0)
+                return true;
+
+              xfs.detachTemp(logDir);
+
+              const buildMessage = `${structUtils.prettyLocator(this.configuration, pkg)} couldn't be built successfully (exit code ${formatUtils.pretty(this.configuration, exitCode, formatUtils.Type.NUMBER)}, logs can be found here: ${formatUtils.pretty(this.configuration, logFile, formatUtils.Type.PATH)})`;
+
+              if (this.optionalBuilds.has(pkg.locatorHash)) {
+                report.reportInfo(MessageName.BUILD_FAILED, buildMessage);
+                return true;
+              } else {
+                report.reportError(MessageName.BUILD_FAILED, buildMessage);
+                return false;
+              }
+            });
+
+            if (!wasBuildSuccessful) {
+              return false;
             }
-          })());
-        }
+          }
+
+          return true;
+        });
+
+        buildPromises.push(
+          ...pkgBuilds,
+          Promise.allSettled(pkgBuilds).then(results => {
+            buildablePackages.delete(locatorHash);
+
+            if (results.every(result => result.status === `fulfilled` && result.value === true)) {
+              nextBState.set(pkg.locatorHash, buildHash);
+            }
+          }),
+        );
       }
 
       await miscUtils.allSettledSafe(buildPromises);
@@ -1485,16 +1523,25 @@ export class Project {
     const nodeLinker = this.configuration.get(`nodeLinker`);
     Configuration.telemetry?.reportInstall(nodeLinker);
 
+    let hasPreErrors = false;
     await opts.report.startTimerPromise(`Project validation`, {
       skipIfEmpty: true,
     }, async () => {
       await this.configuration.triggerHook(hooks => {
         return hooks.validateProject;
       }, this, {
-        reportWarning: opts.report.reportWarning.bind(opts.report),
-        reportError: opts.report.reportError.bind(opts.report),
+        reportWarning: (name, text) => {
+          opts.report.reportWarning(name, text);
+        },
+        reportError: (name, text) => {
+          opts.report.reportError(name, text);
+          hasPreErrors = true;
+        },
       });
     });
+
+    if (hasPreErrors)
+      return;
 
     for (const extensionsByIdent of this.configuration.packageExtensions.values())
       for (const [, extensionsByRange] of extensionsByIdent)
@@ -1620,6 +1667,26 @@ export class Project {
     });
 
     await this.persistInstallStateFile();
+
+    let hasPostErrors = false;
+    await opts.report.startTimerPromise(`Post-install validation`, {
+      skipIfEmpty: true,
+    }, async () => {
+      await this.configuration.triggerHook(hooks => {
+        return hooks.validateProjectAfterInstall;
+      }, this, {
+        reportWarning: (name, text) => {
+          opts.report.reportWarning(name, text);
+        },
+        reportError: (name, text) => {
+          opts.report.reportError(name, text);
+          hasPostErrors = true;
+        },
+      });
+    });
+
+    if (hasPostErrors)
+      return;
 
     await this.configuration.triggerHook(hooks => {
       return hooks.afterAllInstalled;
@@ -1942,7 +2009,7 @@ function applyVirtualResolutionMutations({
 
   const reportStackOverflow = (): never => {
     const logDir = xfs.mktempSync();
-    const logFile = ppath.join(logDir, `stacktrace.log` as Filename);
+    const logFile = ppath.join(logDir, `stacktrace.log`);
 
     const maxSize = String(resolutionStack.length + 1).length;
     const content = resolutionStack.map((locator, index) => {
