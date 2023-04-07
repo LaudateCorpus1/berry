@@ -46230,7 +46230,7 @@ const RAW_RUNTIME_STATE =
           ["debug", "virtual:142ba651bd70dac073ff3db3802f4ea29eff00d44224dd3049edf764b3f7df3c6422788fa486ce2f45a8f2e710e5925abafab7126fee39d5d57a83f2087201ff#npm:4.3.4"],\
           ["engine.io", "npm:4.1.1"],\
           ["socket.io-adapter", "npm:2.1.0"],\
-          ["socket.io-parser", "npm:4.0.4"]\
+          ["socket.io-parser", "npm:4.0.5"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -46255,16 +46255,16 @@ const RAW_RUNTIME_STATE =
           ["debug", "virtual:142ba651bd70dac073ff3db3802f4ea29eff00d44224dd3049edf764b3f7df3c6422788fa486ce2f45a8f2e710e5925abafab7126fee39d5d57a83f2087201ff#npm:4.3.4"],\
           ["engine.io-client", "npm:4.1.4"],\
           ["parseuri", "npm:0.0.6"],\
-          ["socket.io-parser", "npm:4.0.4"]\
+          ["socket.io-parser", "npm:4.0.5"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["socket.io-parser", [\
-      ["npm:4.0.4", {\
-        "packageLocation": "./.yarn/cache/socket.io-parser-npm-4.0.4-1dfc284556-b30102c598.zip/node_modules/socket.io-parser/",\
+      ["npm:4.0.5", {\
+        "packageLocation": "./.yarn/cache/socket.io-parser-npm-4.0.5-5ba538869c-6a455b1de2.zip/node_modules/socket.io-parser/",\
         "packageDependencies": [\
-          ["socket.io-parser", "npm:4.0.4"],\
+          ["socket.io-parser", "npm:4.0.5"],\
           ["@types/component-emitter", "npm:1.2.10"],\
           ["component-emitter", "npm:1.3.0"],\
           ["debug", "virtual:142ba651bd70dac073ff3db3802f4ea29eff00d44224dd3049edf764b3f7df3c6422788fa486ce2f45a8f2e710e5925abafab7126fee39d5d57a83f2087201ff#npm:4.3.4"]\
