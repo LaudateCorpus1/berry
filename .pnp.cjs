@@ -30456,7 +30456,7 @@ const RAW_RUNTIME_STATE =
           ["object-assign", "npm:4.1.1"],\
           ["promise", "npm:7.3.1"],\
           ["setimmediate", "npm:1.0.5"],\
-          ["ua-parser-js", "npm:0.7.31"]\
+          ["ua-parser-js", "npm:0.7.33"]\
         ],\
         "linkType": "HARD"\
       }],\
@@ -30470,7 +30470,7 @@ const RAW_RUNTIME_STATE =
           ["object-assign", "npm:4.1.1"],\
           ["promise", "npm:7.3.1"],\
           ["setimmediate", "npm:1.0.5"],\
-          ["ua-parser-js", "npm:0.7.31"]\
+          ["ua-parser-js", "npm:0.7.33"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -48637,10 +48637,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["ua-parser-js", [\
-      ["npm:0.7.31", {\
-        "packageLocation": "./.yarn/cache/ua-parser-js-npm-0.7.31-aeb4c9aae9-12aeb0aca9.zip/node_modules/ua-parser-js/",\
+      ["npm:0.7.33", {\
+        "packageLocation": "./.yarn/cache/ua-parser-js-npm-0.7.33-4d3f482ab6-8b6bd241e7.zip/node_modules/ua-parser-js/",\
         "packageDependencies": [\
-          ["ua-parser-js", "npm:0.7.31"]\
+          ["ua-parser-js", "npm:0.7.33"]\
         ],\
         "linkType": "HARD"\
       }]\
