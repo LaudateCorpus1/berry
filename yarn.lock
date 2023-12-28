@@ -21845,7 +21845,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"msgpackr-extract@npm:^3.0.1":
+"msgpackr-extract@npm:^3.0.2":
   version: 3.0.2
   resolution: "msgpackr-extract@npm:3.0.2"
   dependencies:
@@ -21877,14 +21877,14 @@ __metadata:
   linkType: hard
 
 "msgpackr@npm:^1.5.4":
-  version: 1.8.5
-  resolution: "msgpackr@npm:1.8.5"
+  version: 1.10.1
+  resolution: "msgpackr@npm:1.10.1"
   dependencies:
-    msgpackr-extract: "npm:^3.0.1"
+    msgpackr-extract: "npm:^3.0.2"
   dependenciesMeta:
     msgpackr-extract:
       optional: true
-  checksum: 93169676e67df570e8854e2d0cdf625368f35a1a2a0c9dd0584460e67774fb144b8c7d5fed107fb4ec4af7b501725d4e737fa577a51548a894595ff9febf33ac
+  checksum: a13556ba28c549675f55e67455ce6f06a3732ff06e5524acb12fc16a2438ecf17c3d5b70af689925aa11ca52db220c90827d7b40af8a6caab76b6cadc1bf335e
   languageName: node
   linkType: hard
 
